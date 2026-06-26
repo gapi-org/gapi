@@ -1,0 +1,23 @@
+.DS_Store
+
+# Editor and tooling
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Go build and test artifacts
+bin/
+dist/
+tmp/
+*.test
+*.out
+coverage.*
+
+# Example binaries
+examples/hello/hello

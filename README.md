@@ -1,37 +1,17 @@
 # Gapi
 
-Gapi is a FastAPI-inspired Go backend framework built around typed handlers, automatic OpenAPI generation, and idiomatic `net/http`.
+Gapi is an alpha Go backend framework inspired by FastAPI's developer experience and built around idiomatic `net/http`.
 
 The goal is simple:
 
 > Write one typed Go handler, and let the framework handle request binding, validation, OpenAPI generation, docs UI, response serialization, dependency injection, and standard error responses.
 
-Gapi is core-complete for an initial public alpha. APIs may still evolve before v1.
-
-## Why Gapi
-
-Most Go web frameworks are router-first. Gapi is type-first:
-
-- Define input/output structs once.
-- Bind path, query, header, cookie, and body data automatically.
-- Validate requests from struct tags and custom validators.
-- Generate OpenAPI 3.1 and docs automatically.
-- Keep standard `net/http` compatibility.
-
-This gives Go projects a FastAPI-like developer experience without leaving the Go ecosystem.
-
-## Project Status
-
-Gapi is ready for early users and feedback, but it is not v1-stable yet.
-
-- Suitable for experiments, prototypes, internal tools, and early adopters.
-- Public APIs may change before v1.
-- Production use should pin versions and review changelog updates.
+Gapi is early alpha software. The core workflow is usable, but APIs may still change before v1.
 
 ## Install
 
 ```bash
-go get github.com/gapi-org/gapi
+go get github.com/Kushagra1122/gapi
 ```
 
 ## Quickstart
@@ -43,8 +23,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/gapi-org/gapi"
-	"github.com/gapi-org/gapi/middleware"
+	"github.com/Kushagra1122/gapi"
+	"github.com/Kushagra1122/gapi/middleware"
 )
 
 type GetUserIn struct {
@@ -88,24 +68,6 @@ Generated endpoints:
 - `GET /redoc`
 - `GET /scalar`
 
-## CLI
-
-Install the CLI with:
-
-```bash
-go install github.com/gapi-org/gapi/cmd/gapi@latest
-```
-
-Useful commands:
-
-```bash
-gapi new hello-api
-gapi routes --file openapi.json
-gapi openapi --url http://localhost:8080/openapi.json --out openapi.json
-gapi gen --file openapi.json --out client.go
-gapi lint
-```
-
 ## Current Features
 
 - `net/http` compatible `App` implementing `http.Handler`.
@@ -114,43 +76,31 @@ gapi lint
 - Route groups and app/group/route middleware.
 - Binding tags: `path`, `query`, `header`, `cookie`, `body`.
 - Validation tags: `required`, `min`, `max`, `len`, `email`, `uuid`, `oneof`, `regexp`, `enum`.
-- JSON response serialization, `gapi.Response[T]`, text, HTML, redirects, files, attachments, streams, and SSE.
+- JSON response serialization and `gapi.Response[T]`.
 - RFC 9457-style Problem Details responses.
 - OpenAPI 3.1 generation and hosted docs UIs.
-- Dependency injection with `gapi.Dep`, `app.Provide`, `gapi.Require`, request caching, and `dep` fields.
-- OpenAPI security scheme metadata plus bearer/API-key helpers.
+- Basic dependency injection with `gapi.Dep`, `app.Provide`, `gapi.Require`, and `dep` fields.
+- Basic OpenAPI security scheme metadata.
 - Optional middleware package.
 - Testing helper package.
-- CLI for scaffolding, route listing, OpenAPI export, and client scaffold generation.
 - Hello and Todo examples.
 
 ## Alpha Limitations
 
-- Generated clients are currently scaffold-level, not full typed SDKs.
-- chi/gin/echo router adapters are roadmap items.
-- Full dependency override graphs and advanced OAuth/JWT helpers are roadmap items.
-- Recursive JSON Schema references and custom schema providers are roadmap items.
+- Code generation is planned after alpha.
+- chi/gin/echo router adapters are planned after alpha.
+- CLI is intentionally basic.
+- Full DI graphs, dependency overrides, and advanced auth middleware are not complete.
+- Full JSON Schema edge cases are not complete.
 - APIs may change before v1.
 
 ## Packages
 
-- `github.com/gapi-org/gapi`: core framework API.
-- `github.com/gapi-org/gapi/middleware`: optional middleware.
-- `github.com/gapi-org/gapi/testing`: httptest helpers.
+- `github.com/Kushagra1122/gapi`: core framework API.
+- `github.com/Kushagra1122/gapi/middleware`: optional middleware.
+- `github.com/Kushagra1122/gapi/testing`: httptest helpers.
 
 ## Documentation
 
-See [`docs/`](docs/) for quickstart, validation, middleware, OpenAPI, dependency injection, testing, project structure, and roadmap notes.
-
-## Contributing
-
-Contributions are welcome. Start with [`CONTRIBUTING.md`](CONTRIBUTING.md), read the project structure guide in [`docs/project-structure.md`](docs/project-structure.md), and run `go test ./...` before opening a pull request.
-
-## Security
-
-Please report vulnerabilities privately using the process in [`SECURITY.md`](SECURITY.md).
-
-## License
-
-Gapi is released under the [MIT License](LICENSE).
+See [`docs/`](docs/) for quickstart, validation, middleware, OpenAPI, dependency injection, testing, and roadmap notes.
 

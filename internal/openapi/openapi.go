@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gapi-org/gapi/internal/binding"
+	"github.com/Kushagra1122/gapi/internal/binding"
 )
 
 type Config struct {
@@ -188,14 +188,6 @@ func parameterSchema(name, location string, t reflect.Type) map[string]any {
 }
 
 func schemaFor(t reflect.Type) map[string]any {
-	if t.Kind() == reflect.Pointer {
-		schema := schemaFor(t.Elem())
-		makeNullable(schema)
-		return schema
-	}
-	if t.PkgPath() == "encoding/json" && t.Name() == "RawMessage" {
-		return map[string]any{"description": "Arbitrary JSON value."}
-	}
 	t = binding.DereferenceType(t)
 
 	switch t.Kind() {
@@ -222,18 +214,6 @@ func schemaFor(t reflect.Type) map[string]any {
 		for i := 0; i < t.NumField(); i++ {
 			field := t.Field(i)
 			if field.PkgPath != "" {
-				continue
-			}
-			if field.Anonymous && field.Tag.Get("json") == "" {
-				embeddedSchema := schemaFor(field.Type)
-				if embeddedProperties, ok := embeddedSchema["properties"].(map[string]any); ok {
-					for name, property := range embeddedProperties {
-						properties[name] = property
-					}
-				}
-				if embeddedRequired, ok := embeddedSchema["required"].([]string); ok {
-					required = append(required, embeddedRequired...)
-				}
 				continue
 			}
 			name := jsonFieldName(field)
@@ -269,25 +249,6 @@ func schemaFor(t reflect.Type) map[string]any {
 		return schema
 	default:
 		return map[string]any{}
-	}
-}
-
-func makeNullable(schema map[string]any) {
-	value, ok := schema["type"]
-	if !ok {
-		schema["type"] = []any{"null"}
-		return
-	}
-	switch typed := value.(type) {
-	case string:
-		schema["type"] = []any{typed, "null"}
-	case []any:
-		for _, item := range typed {
-			if item == "null" {
-				return
-			}
-		}
-		schema["type"] = append(typed, "null")
 	}
 }
 

@@ -21,8 +21,6 @@ type problem struct {
 	Detail string `json:"detail,omitempty"`
 }
 
-type AuthFunc func(string) bool
-
 // Recover converts panics into RFC 9457 Problem Details responses.
 func Recover() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -121,62 +119,6 @@ func CORS(config CORSConfig) func(http.Handler) http.Handler {
 			w.Header().Set("Access-Control-Allow-Headers", headers)
 			if r.Method == http.MethodOptions {
 				w.WriteHeader(http.StatusNoContent)
-				return
-			}
-			next.ServeHTTP(w, r)
-		})
-	}
-}
-
-// APIKeyHeader requires a valid API key in a header.
-func APIKeyHeader(header string, allow AuthFunc) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if allow == nil || !allow(r.Header.Get(header)) {
-				writeProblem(w, problem{
-					Type:   "about:blank",
-					Title:  http.StatusText(http.StatusUnauthorized),
-					Status: http.StatusUnauthorized,
-					Detail: http.StatusText(http.StatusUnauthorized),
-				})
-				return
-			}
-			next.ServeHTTP(w, r)
-		})
-	}
-}
-
-// APIKeyQuery requires a valid API key in a query parameter.
-func APIKeyQuery(name string, allow AuthFunc) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if allow == nil || !allow(r.URL.Query().Get(name)) {
-				writeProblem(w, problem{
-					Type:   "about:blank",
-					Title:  http.StatusText(http.StatusUnauthorized),
-					Status: http.StatusUnauthorized,
-					Detail: http.StatusText(http.StatusUnauthorized),
-				})
-				return
-			}
-			next.ServeHTTP(w, r)
-		})
-	}
-}
-
-// BearerToken requires a valid Authorization: Bearer token.
-func BearerToken(allow AuthFunc) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			value := r.Header.Get("Authorization")
-			token, ok := strings.CutPrefix(value, "Bearer ")
-			if allow == nil || !ok || token == "" || !allow(token) {
-				writeProblem(w, problem{
-					Type:   "about:blank",
-					Title:  http.StatusText(http.StatusUnauthorized),
-					Status: http.StatusUnauthorized,
-					Detail: http.StatusText(http.StatusUnauthorized),
-				})
 				return
 			}
 			next.ServeHTTP(w, r)

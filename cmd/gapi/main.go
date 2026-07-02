@@ -72,7 +72,7 @@ func newProject(stdout io.Writer, name string) error {
 
 	module := filepath.Base(dir)
 	files := map[string]string{
-		"go.mod":    "module " + module + "\n\ngo 1.25.3\n\nrequire github.com/Kushagra1122/gapi latest\n",
+		"go.mod":    "module " + module + "\n\ngo 1.25.3\n\nrequire github.com/gapi-org/gapi latest\n",
 		"main.go":   starterMain(),
 		"README.md": "# " + module + "\n\nGenerated with `gapi new`.\n\nRun:\n\n```bash\ngo mod tidy\ngo run .\n```\n",
 	}
@@ -97,8 +97,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/Kushagra1122/gapi"
-	"github.com/Kushagra1122/gapi/middleware"
+	"github.com/gapi-org/gapi"
+	"github.com/gapi-org/gapi/middleware"
 )
 
 type HelloIn struct {

@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Kushagra1122/gapi"
-	"github.com/Kushagra1122/gapi/middleware"
+	"github.com/gapi-org/gapi"
+	"github.com/gapi-org/gapi/middleware"
 )
 
 func TestTypedGetBindsPathAndQueryAndReturnsJSON(t *testing.T) {
@@ -184,6 +184,24 @@ func TestAdvancedResponseHelpers(t *testing.T) {
 	}
 }
 
+func TestFileResponseMissingPathReturnsProblemJSON(t *testing.T) {
+	app := gapi.New(gapi.Config{Title: "Test API", Version: "0.5.0"})
+	gapi.Get[struct{}, gapi.File](app, "/missing-file", func(ctx context.Context, in struct{}) (gapi.File, error) {
+		return gapi.File{Path: filepath.Join(t.TempDir(), "missing.txt")}, nil
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/missing-file", nil)
+	res := httptest.NewRecorder()
+	app.ServeHTTP(res, req)
+
+	if res.Code != http.StatusNotFound {
+		t.Fatalf("expected status 404, got %d with body %s", res.Code, res.Body.String())
+	}
+	if got := res.Header().Get("Content-Type"); !strings.Contains(got, "application/problem+json") {
+		t.Fatalf("expected problem JSON content type, got %q", got)
+	}
+}
+
 func TestBindsHeaderCookieAndDefaultQueryValues(t *testing.T) {
 	type input struct {
 		TraceID string `header:"X-Trace-ID"`
@@ -311,6 +329,49 @@ func TestCustomValidatorReturnsProblemJSON(t *testing.T) {
 	}
 }
 
+type optionalValidatedChild struct {
+	Value string `json:"value"`
+}
+
+func (child optionalValidatedChild) ValidateGapi() []gapi.FieldError {
+	if child.Value == "" {
+		return []gapi.FieldError{{
+			Field:   "value",
+			Message: "must not be empty",
+			Code:    "custom",
+		}}
+	}
+	return nil
+}
+
+func TestCustomValidatorSkipsNilOptionalPointers(t *testing.T) {
+	type body struct {
+		Child *optionalValidatedChild `json:"child"`
+	}
+	type input struct {
+		Body body `body:""`
+	}
+	type output struct {
+		OK bool `json:"ok"`
+	}
+
+	app := gapi.New(gapi.Config{Title: "Test API", Version: "0.5.0"})
+	gapi.Post[input, output](app, "/optional-child", func(ctx context.Context, in input) (output, error) {
+		if in.Body.Child != nil {
+			t.Fatalf("expected optional child to remain nil, got %#v", in.Body.Child)
+		}
+		return output{OK: true}, nil
+	})
+
+	req := httptest.NewRequest(http.MethodPost, "/optional-child", strings.NewReader(`{}`))
+	res := httptest.NewRecorder()
+	app.ServeHTTP(res, req)
+
+	if res.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d with body %s", res.Code, res.Body.String())
+	}
+}
+
 func TestBindingErrorsReturnStructuredProblemJSON(t *testing.T) {
 	type input struct {
 		ID int `path:"id"`
@@ -407,6 +468,28 @@ func TestHTTPErrorMapsHandlerErrorToProblemJSON(t *testing.T) {
 	}
 }
 
+func TestHeadResponseDoesNotWriteBody(t *testing.T) {
+	type output struct {
+		OK bool `json:"ok"`
+	}
+
+	app := gapi.New(gapi.Config{Title: "Test API", Version: "0.5.0"})
+	gapi.Head[struct{}, output](app, "/head-body", func(ctx context.Context, in struct{}) (output, error) {
+		return output{OK: true}, nil
+	})
+
+	req := httptest.NewRequest(http.MethodHead, "/head-body", nil)
+	res := httptest.NewRecorder()
+	app.ServeHTTP(res, req)
+
+	if res.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d", res.Code)
+	}
+	if res.Body.Len() != 0 {
+		t.Fatalf("expected HEAD response body to be empty, got %q", res.Body.String())
+	}
+}
+
 func TestNotFoundWritesProblemJSON(t *testing.T) {
 	app := gapi.New(gapi.Config{Title: "Test API", Version: "0.4.0"})
 
@@ -419,6 +502,31 @@ func TestNotFoundWritesProblemJSON(t *testing.T) {
 	}
 	if got := res.Header().Get("Content-Type"); !strings.Contains(got, "application/problem+json") {
 		t.Fatalf("expected problem JSON content type, got %q", got)
+	}
+}
+
+func TestMethodNotAllowedWritesProblemJSONAndAllowHeader(t *testing.T) {
+	type output struct {
+		OK bool `json:"ok"`
+	}
+
+	app := gapi.New(gapi.Config{Title: "Test API", Version: "0.5.0"})
+	gapi.Get[struct{}, output](app, "/only-get", func(ctx context.Context, in struct{}) (output, error) {
+		return output{OK: true}, nil
+	})
+
+	req := httptest.NewRequest(http.MethodPost, "/only-get", nil)
+	res := httptest.NewRecorder()
+	app.ServeHTTP(res, req)
+
+	if res.Code != http.StatusMethodNotAllowed {
+		t.Fatalf("expected status 405, got %d with body %s", res.Code, res.Body.String())
+	}
+	if got := res.Header().Get("Content-Type"); !strings.Contains(got, "application/problem+json") {
+		t.Fatalf("expected problem JSON content type, got %q", got)
+	}
+	if got := res.Header().Get("Allow"); !strings.Contains(got, http.MethodGet) {
+		t.Fatalf("expected Allow header to include GET, got %q", got)
 	}
 }
 

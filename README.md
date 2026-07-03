@@ -30,16 +30,27 @@ Gapi is ready for early users and feedback, but it is not v1-stable yet.
 
 ## Install
 
-**Library** — add to your project:
+**Library** — add to an existing Go module:
 
 ```bash
+mkdir hello-api
+cd hello-api
+go mod init hello-api
 go get github.com/gapi-org/gapi@v0.1.0
 ```
+
+`go get` must be run inside a directory with a `go.mod` file. If you are starting from an empty directory, run `go mod init` first as shown above.
 
 **CLI** — install the `gapi` command:
 
 ```bash
 go install github.com/gapi-org/gapi/cmd/gapi@v0.1.0
+```
+
+If your shell cannot find `gapi` after installation, add Go's binary directory to your `PATH`:
+
+```bash
+export PATH="$PATH:$(go env GOPATH)/bin"
 ```
 
 Docs: [pkg.go.dev/github.com/gapi-org/gapi](https://pkg.go.dev/github.com/gapi-org/gapi)
@@ -132,7 +143,7 @@ gapi lint
 - Optional middleware package.
 - Testing helper package.
 - CLI for scaffolding, route listing, OpenAPI export, and client scaffold generation.
-- Hello and Todo examples.
+- Hello, Todo, and Treasury examples.
 - 
 
 ## Alpha Limitations
@@ -151,7 +162,13 @@ gapi lint
 
 ## Documentation
 
-See [`docs/`](docs/) for quickstart, validation, middleware, OpenAPI, dependency injection, testing, project structure, and roadmap notes.
+See [`docs/`](docs/) for quickstart, installation, validation, middleware, OpenAPI, dependency injection, testing, release guidance, project structure, and roadmap notes.
+
+## Examples
+
+- [`examples/hello`](examples/hello): minimal typed handler.
+- [`examples/todo`](examples/todo): CRUD API with validation and JSON responses.
+- [`examples/treasury`](examples/treasury): larger backend with auth, DI, idempotency, state transitions, audit, CSV export, SSE, and reports.
 
 ## Contributing
 

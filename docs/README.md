@@ -6,6 +6,7 @@ These docs describe the core framework APIs, project layout, examples, and roadm
 
 ## Guides
 
+- [Installation](install.md)
 - [Quickstart](quickstart.md)
 - [Request Binding](binding.md)
 - [Validation](validation.md)
@@ -13,6 +14,7 @@ These docs describe the core framework APIs, project layout, examples, and roadm
 - [OpenAPI And Docs](openapi.md)
 - [Dependency Injection](dependencies.md)
 - [Testing](testing.md)
+- [Releasing](releasing.md)
 - [Project Structure](project-structure.md)
 - [Roadmap](roadmap.md)
 

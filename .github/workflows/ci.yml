@@ -2,6 +2,9 @@ name: CI
 
 on:
   pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
   test:
@@ -14,9 +17,22 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+          cache: true
+
+      - name: Format
+        run: test -z "$(gofmt -l .)"
 
       - name: Test
         run: go test ./...
 
+      - name: Race Test
+        run: go test -race ./...
+
       - name: Vet
         run: go vet ./...
+
+      - name: Build Examples
+        run: go test ./examples/...
+
+      - name: Install CLI
+        run: go install ./cmd/gapi

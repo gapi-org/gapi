@@ -21,3 +21,5 @@ coverage.*
 
 # Example binaries
 examples/hello/hello
+examples/todo/todo
+examples/treasury/treasury

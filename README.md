@@ -30,9 +30,19 @@ Gapi is ready for early users and feedback, but it is not v1-stable yet.
 
 ## Install
 
+**Library** — add to your project:
+
 ```bash
-go get github.com/gapi-org/gapi
+go get github.com/gapi-org/gapi@v0.1.0
 ```
+
+**CLI** — install the `gapi` command:
+
+```bash
+go install github.com/gapi-org/gapi/cmd/gapi@v0.1.0
+```
+
+Docs: [pkg.go.dev/github.com/gapi-org/gapi](https://pkg.go.dev/github.com/gapi-org/gapi)
 
 ## Quickstart
 

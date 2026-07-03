@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.1.0 - 2026-07-03
+
 ### Added
 
 - Typed route helpers for `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, and `OPTIONS`.
